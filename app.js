@@ -194,29 +194,32 @@ function renderDashboard() {
 }
 
 // ── WEATHER ──────────────────────────────────────────────────────────────────────
-
 async function fetchWeather() {
   try {
-    // Leeds coords
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=53.8008&longitude=-1.5491&current=temperature_2m,weathercode,windspeed_10m,precipitation&timezone=Europe%2FLondon');
-    const data = await res.json();
-    const c = data.current;
-    const temp = Math.round(c.temperature_2m);
-    const precip = c.precipitation;
-    const wind = Math.round(c.windspeed_10m);
-    const desc = weatherDesc(c.weathercode);
-
-    const runTip = precip > 2 ? { cls:'tip-bad', text:'Wet outside — check before your run' }
-      : wind > 30 ? { cls:'tip-ok', text:'Windy — adjust your pace' }
-      : temp < 5 ? { cls:'tip-ok', text:'Cold — layer up for your run' }
-      : { cls:'tip-good', text:'Good conditions for running' };
-
-    document.getElementById('weatherContent').innerHTML = `
-      <div class="weather-main">${temp}°C</div>
-      <div class="weather-desc">${desc} · ${wind}km/h wind</div>
-      <div class="weather-run-tip ${runTip.cls}">${runTip.text}</div>
-    `;
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude, longitude } = pos.coords;
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode,windspeed_10m,precipitation&timezone=auto`);
+      const data = await res.json();
+      const c = data.current;
+      const temp = Math.round(c.temperature_2m);
+      const precip = c.precipitation;
+      const wind = Math.round(c.windspeed_10m);
+      const desc = weatherDesc(c.weathercode);
+      const runTip = precip > 2 ? { cls:'tip-bad', text:'Wet outside — check before your run' }
+        : wind > 30 ? { cls:'tip-ok', text:'Windy — adjust your pace' }
+        : temp < 5 ? { cls:'tip-ok', text:'Cold — layer up for your run' }
+        : { cls:'tip-good', text:'Good conditions for running' };
+      document.getElementById('weatherContent').innerHTML = `
+        <div class="weather-main">${temp}°C</div>
+        <div class="weather-desc">${desc} · ${wind}km/h wind</div>
+        <div class="weather-run-tip ${runTip.cls}">${runTip.text}</div>`;
+    }, () => {
+      document.getElementById('weatherContent').innerHTML = '<div style="font-size:12px;color:var(--text3)">Allow location for weather</div>';
+    });
   } catch(e) {
+    document.getElementById('weatherContent').innerHTML = '<div style="font-size:12px;color:var(--text3)">Weather unavailable</div>';
+  }
+}
     document.getElementById('weatherContent').innerHTML = '<div style="font-size:12px;color:var(--text3)">Weather unavailable</div>';
   }
 }

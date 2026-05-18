@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORGE — Gym Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">FORGE</div>
+  <div class="nav-links">
+    <a href="#" class="nav-link active" data-page="today">Today</a>
+    <a href="#" class="nav-link" data-page="progress">Progress</a>
+    <a href="#" class="nav-link" data-page="body">Body Map</a>
+    <a href="#" class="nav-link" data-page="weight">Weight</a>
+    <a href="#" class="nav-link" data-page="nutrition">Nutrition</a>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="exportBtn">Export</button>
+    <label class="btn-ghost" for="importFile">Import</label>
+    <input type="file" id="importFile" accept=".json" style="display:none">
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- TODAY PAGE -->
+  <section class="page active" id="page-today">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title" id="todayTitle">Loading...</h1>
+        <p class="page-sub" id="todayDate"></p>
+      </div>
+      <div class="day-badge" id="dayBadge"></div>
+    </div>
+
+    <div id="workoutSection"></div>
+    <div id="runSection"></div>
+    <div id="calorieSection"></div>
+
+  </section>
+
+  <!-- PROGRESS PAGE -->
+  <section class="page" id="page-progress">
+    <div class="page-header">
+      <h1 class="page-title">Progress</h1>
+    </div>
+    <div class="filter-row">
+      <select id="exerciseFilter" class="select"></select>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="progressChart"></canvas>
+    </div>
+    <div class="chart-wrap" style="margin-top:2rem">
+      <h2 class="section-title">Running</h2>
+      <canvas id="runChart"></canvas>
+    </div>
+  </section>
+
+  <!-- BODY MAP PAGE -->
+  <section class="page" id="page-body">
+    <div class="page-header">
+      <h1 class="page-title">Muscle Map</h1>
+      <p class="page-sub">Colour intensity reflects training volume over the last 4 weeks</p>
+    </div>
+    <div class="body-map-wrap">
+      <div class="body-side">
+        <p class="body-label">Front</p>
+        <svg id="bodyFront" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="body-side">
+        <p class="body-label">Back</p>
+        <svg id="bodyBack" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </div>
+    <div class="muscle-legend" id="muscleLegend"></div>
+  </section>
+
+  <!-- WEIGHT PAGE -->
+  <section class="page" id="page-weight">
+    <div class="page-header">
+      <h1 class="page-title">Weight</h1>
+      <p class="page-sub">Log every Monday morning, fasted</p>
+    </div>
+    <div class="checkin-form card">
+      <h2 class="section-title">Log Weight</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="label">Date</label>
+          <input type="date" id="weightDate" class="input">
+        </div>
+        <div class="form-group">
+          <label class="label">Weight (kg)</label>
+          <input type="number" id="weightKg" class="input" step="0.1" placeholder="83.0">
+        </div>
+        <div class="form-group">
+          <label class="label">Notes (optional)</label>
+          <input type="text" id="weightNotes" class="input" placeholder="Feeling good...">
+        </div>
+      </div>
+      <button class="btn-primary" id="logWeightBtn">Log Weight</button>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="weightChart"></canvas>
+    </div>
+    <div id="weightHistory" class="history-list"></div>
+  </section>
+
+  <!-- NUTRITION PAGE -->
+  <section class="page" id="page-nutrition">
+    <div class="page-header">
+      <h1 class="page-title">Nutrition</h1>
+      <p class="page-sub">Target: 3,000–3,200 kcal · 160–170g protein</p>
+    </div>
+    <div class="nutrition-today card">
+      <h2 class="section-title">Today</h2>
+      <div class="macro-grid">
+        <div class="macro-card">
+          <div class="macro-val" id="todayKcal">—</div>
+          <div class="macro-lbl">kcal</div>
+          <div class="macro-target">target 3,100</div>
+        </div>
+        <div class="macro-card">
+          <div class="macro-val" id="todayProtein">—</div>
+          <div class="macro-lbl">protein (g)</div>
+          <div class="macro-target">target 165g</div>
+        </div>
+      </div>
+      <div class="form-row" style="margin-top:1.5rem">
+        <div class="form-group">
+          <label class="label">Calories</label>
+          <input type="number" id="nutKcal" class="input" placeholder="3100">
+        </div>
+        <div class="form-group">
+          <label class="label">Protein (g)</label>
+          <input type="number" id="nutProtein" class="input" placeholder="165">
+        </div>
+        <div class="form-group">
+          <label class="label">Notes</label>
+          <input type="text" id="nutNotes" class="input" placeholder="Chicken, rice, wraps...">
+        </div>
+      </div>
+      <button class="btn-primary" id="logNutritionBtn">Log Today</button>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="nutritionChart"></canvas>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="bodymap.js"></script>
+<script src="charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
